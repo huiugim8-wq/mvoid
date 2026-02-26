@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BoxFlow - 제품</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body>
+  <div class="app app--dark">
+
+    <header class="topbar">
+      <a class="back" href="index.html">←</a>
+      <div class="topbar-title">
+        <div class="small">제품 대시보드</div>
+        <h2 id="productName" class="title">제품</h2>
+      </div>
+      <div class="ghost"></div>
+    </header>
+
+    <!-- 상태 헤더 -->
+    <section id="statusHero" class="status-hero status-hero--warn">
+      <div>
+        <div class="status-kicker">금주 출고량 대비</div>
+        <div id="statusText" class="status-text">대기</div>
+      </div>
+      <div id="statusChip" class="status-chip">▽ 설정 입력</div>
+    </section>
+
+    <!-- 재고: 1줄 3칸 -->
+    <section class="card">
+      <div class="card-title">재고 현황</div>
+      <div class="grid3-one">
+        <div class="mini"><div class="mini-t">납품 업체 재고</div><div class="mini-v"><span id="vendorStockView">0</span> ea</div></div>
+        <div class="mini"><div class="mini-t">금주 출고</div><div class="mini-v"><span id="weekShipView">0</span> ea</div></div>
+        <div class="mini"><div class="mini-t">현장 재고</div><div class="mini-v"><span id="factoryStockView">0</span> ea</div></div>
+      </div>
+    </section>
+
+    <!-- 수지/가동 -->
+    <section class="card">
+      <details class="details">
+        <summary class="summary">
+          <div><div class="card-title">수지</div><div class="card-sub">중량·사이클로 자동 계산</div></div>
+          <div class="chev">▽</div>
+        </summary>
+
+        <div class="grid2">
+          <div class="mini"><div class="mini-t">재고 수지</div><div class="mini-v"><span id="materialKgView">0.0</span> kg</div></div>
+          <div class="mini"><div class="mini-t">가동 가능</div><div class="mini-v"><span id="runHoursView">0.0</span> h</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row2">
+          <div class="kv"><div class="kv-k">시간당 필요 수지</div><div class="kv-v"><span id="kgPerHourView">0.00</span> kg/h</div></div>
+          <div class="kv"><div class="kv-k">가능 수량</div><div class="kv-v"><span id="possibleEaView">0</span> ea</div></div>
+          <div class="kv"><div class="kv-k">남은 필요 생산량</div><div class="kv-v"><span id="needMakeView">0</span> ea</div></div>
+          <div class="kv"><div class="kv-k">추가 필요 수지</div><div class="kv-v"><span id="needKgView">0.0</span> kg</div></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 생산/사이클 -->
+    <section class="card">
+      <details class="details">
+        <summary class="summary">
+          <div><div class="card-title">생산정보</div><div class="card-sub">UPH·불량 반영</div></div>
+          <div class="chev">▽</div>
+        </summary>
+
+        <div class="grid2">
+          <div class="mini"><div class="mini-t">UPH</div><div class="mini-v"><span id="uphView">0</span> ea/h</div></div>
+          <div class="mini"><div class="mini-t">사이클</div><div class="mini-v"><span id="cycleTimeView">0</span> s</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row2">
+          <div class="kv"><div class="kv-k">11h 총</div><div class="kv-v"><span id="total11hView">0</span> ea</div></div>
+          <div class="kv"><div class="kv-k">불량률</div><div class="kv-v"><span id="defectRateView">0.0</span> %</div></div>
+          <div class="kv"><div class="kv-k">양품</div><div class="kv-v"><span id="good11hView">0</span> ea</div></div>
+          <div class="kv"><div class="kv-k">불량</div><div class="kv-v"><span id="bad11hView">0</span> ea</div></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 메모 -->
+    <section class="card">
+      <div class="card-title">메모</div>
+      <textarea id="memo" class="memo" placeholder="특이사항, 금형/공정 메모"></textarea>
+      
+      <div class="image-section">
+        <div class="image-header">
+          <span>이미지</span>
+          <label class="btn-add-image">
+            + 추가
+            <input type="file" id="imageInput" accept="image/*" style="display:none"/>
+          </label>
+        </div>
+        <div id="imagePreview" class="image-preview"></div>
+      </div>
+    </section>
+
+    <!-- 설정 수정 (7개) + 저장 버튼(절반) -->
+    <section class="card">
+      <details class="details" open>
+        <summary class="summary">
+          <div><div class="card-title">▽ 설정 수정</div><div class="card-sub">저장 버튼을 눌러야 저장됩니다</div></div>
+          <div class="chev">▽</div>
+        </summary>
+
+        <div class="field"><label>납품업체 재고(ea)</label><input id="vendorStock" type="number" value="0"/></div>
+        <div class="field"><label>금주 출고량(ea)</label><input id="weekShip" type="number" value="0"/></div>
+        <div class="field"><label>우리 공장 재고(ea)</label><input id="factoryStock" type="number" value="0"/></div>
+
+        <div class="field"><label>재고 수지량(kg)</label><input id="materialKg" type="number" step="0.1" value="0"/></div>
+        <div class="field"><label>제품 중량(스프루 포함)(g/ea)</label><input id="weightGPerEa" type="number" step="0.1" value="0"/></div>
+        <div class="field"><label>사이클타임(sec)</label><input id="cycleTime" type="number" value="0"/></div>
+        <div class="field"><label>불량률(%)</label><input id="defectRate" type="number" step="0.1" value="0"/></div>
+
+        <div class="save-row">
+          <button id="btnSave" class="btn btn-success btn-save-half">설정 저장</button>
+        </div>
+      </details>
+    </section>
+  </div>
+
+<script>
+    const LOGIN_ID_KEY = "boxflow_login_id";
+    const REGISTERED_IDS_KEY = "boxflow_registered_ids";
+    
+    const savedId = localStorage.getItem(LOGIN_ID_KEY);
+    const registeredIds = JSON.parse(localStorage.getItem(REGISTERED_IDS_KEY)) || ["admin"];
+    if (!savedId || !registeredIds.includes(savedId)) {
+      location.href = "login.html";
+    }
+
+    const PRODUCTS_KEY = "boxflow_products_v1";
+    const productKey = (code) => `boxflow_product_${code}`;
+
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code") || "A";
+
+    const $ = id => document.getElementById(id);
+
+    // 제품명 표시
+    const products = (() => {
+      try{
+        const raw = localStorage.getItem(PRODUCTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch { return []; }
+    })();
+    const product = products.find(p => p.code === code);
+    $("productName").textContent = product?.name || "제품";
+
+    const DATA_KEY = productKey(code);
+
+    const inputs = ["vendorStock","weekShip","factoryStock","materialKg","weightGPerEa","cycleTime","defectRate","memo","image"];
+
+    let currentImage = "";
+
+    const views = {
+      vendorStockView:$("vendorStockView"), weekShipView:$("weekShipView"), factoryStockView:$("factoryStockView"),
+      materialKgView:$("materialKgView"), runHoursView:$("runHoursView"),
+      kgPerHourView:$("kgPerHourView"), possibleEaView:$("possibleEaView"),
+      needMakeView:$("needMakeView"), needKgView:$("needKgView"),
+      uphView:$("uphView"), cycleTimeView:$("cycleTimeView"),
+      total11hView:$("total11hView"), defectRateView:$("defectRateView"),
+      good11hView:$("good11hView"), bad11hView:$("bad11hView"),
+      statusHero:$("statusHero"), statusText:$("statusText"), statusChip:$("statusChip"),
+      imagePreview:$("imagePreview")
+    };
+
+    // 저장값 불러오기
+    loadSaved();
+    recalcPreview();
+
+    // 입력시 계산만(저장 아님)
+    ["vendorStock","weekShip","factoryStock","materialKg","weightGPerEa","cycleTime","defectRate"].forEach(id=>{
+      $(id).addEventListener("input", recalcPreview);
+    });
+
+    // 저장 버튼
+    $("btnSave").addEventListener("click", () => {
+      saveNow();
+      views.statusChip.textContent = "✅ 저장됨";
+      setTimeout(()=>recalcPreview(), 350);
+    });
+
+    // 이미지 업로드
+    $("imageInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        currentImage = event.target.result;
+        renderImage();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function renderImage() {
+      if (!currentImage) {
+        views.imagePreview.innerHTML = "";
+        return;
+      }
+      
+      views.imagePreview.innerHTML = `
+        <div class="image-box">
+          <img src="${currentImage}" alt="제품 이미지" />
+          <button class="btn-delete-image" data-act="del-img">×</button>
+        </div>
+      `;
+      
+      views.imagePreview.querySelector('[data-act="del-img"]').addEventListener("click", () => {
+        currentImage = "";
+        renderImage();
+      });
+    }
+
+    function loadSaved(){
+      try{
+        const raw = localStorage.getItem(DATA_KEY);
+        if(!raw) return;
+        const d = JSON.parse(raw);
+
+        $("vendorStock").value = d.vendorStock ?? 0;
+        $("weekShip").value = d.weekShip ?? 0;
+        $("factoryStock").value = d.factoryStock ?? 0;
+        $("materialKg").value = d.materialKg ?? 0;
+        $("weightGPerEa").value = d.weightGPerEa ?? 0;
+        $("cycleTime").value = d.cycleTime ?? 0;
+        $("defectRate").value = d.defectRate ?? 0;
+        $("memo").value = d.memo ?? "";
+        currentImage = d.image || "";
+        renderImage();
+      } catch {}
+    }
+
+    function saveNow(){
+      const d = {};
+      inputs.forEach(id=>{
+        if (id === "image") {
+          d[id] = currentImage;
+          return;
+        }
+        const el = $(id);
+        d[id] = (el.type === "number") ? (Number(el.value)||0) : (el.value || "");
+      });
+      localStorage.setItem(DATA_KEY, JSON.stringify(d));
+    }
+
+    function recalcPreview(){
+      const v = Object.fromEntries(inputs.map(id=>{
+        const el = $(id);
+        return [id, (el.type === "number") ? (Number(el.value)||0) : (el.value||"")];
+      }));
+
+      views.vendorStockView.textContent = v.vendorStock;
+      views.weekShipView.textContent = v.weekShip;
+      views.factoryStockView.textContent = v.factoryStock;
+
+      // 남은 필요 생산 = 금주출고 - 우리재고 (요구사항)
+      const needMake = Math.max(0, v.weekShip - v.factoryStock);
+      views.needMakeView.textContent = needMake;
+
+      // g -> kg
+      const weightKgPerEa = v.weightGPerEa / 1000;
+
+      // UPH
+      const uph = v.cycleTime > 0 ? Math.floor(3600 / v.cycleTime) : 0;
+
+      // 수지/가동
+      const kgPerHour = uph * weightKgPerEa;
+      const runHours = kgPerHour > 0 ? (v.materialKg / kgPerHour) : 0;
+      const possibleEa = weightKgPerEa > 0 ? Math.floor(v.materialKg / weightKgPerEa) : 0;
+
+      views.materialKgView.textContent = v.materialKg.toFixed(1);
+      views.kgPerHourView.textContent = kgPerHour.toFixed(2);
+      views.runHoursView.textContent = runHours.toFixed(1);
+      views.possibleEaView.textContent = possibleEa;
+
+      // 부족/추가수지
+      const lackEa = Math.max(0, needMake - possibleEa);
+      const needKg = lackEa * weightKgPerEa;
+      views.needKgView.textContent = needKg.toFixed(1);
+
+      // 11h 생산 + 불량
+      const total11h = uph * 11;
+      const good11h = Math.floor(total11h * (1 - v.defectRate / 100));
+
+      views.uphView.textContent = uph;
+      views.cycleTimeView.textContent = v.cycleTime;
+      views.total11hView.textContent = total11h;
+      views.defectRateView.textContent = v.defectRate.toFixed(1);
+      views.good11hView.textContent = good11h;
+      views.bad11hView.textContent = total11h - good11h;
+
+      // 상태 표시
+      views.statusHero.classList.remove("status-hero--ok","status-hero--bad","status-hero--warn");
+
+      if (v.weekShip === 0){
+        views.statusHero.classList.add("status-hero--warn");
+        views.statusText.textContent = "대기";
+        views.statusChip.textContent = "▽ 설정 입력";
+        return;
+      }
+
+      if (needMake === 0){
+        views.statusHero.classList.add("status-hero--ok");
+        views.statusText.textContent = "가능(재고)";
+        views.statusChip.textContent = "추가 생산 0";
+      } else if (possibleEa >= needMake){
+        views.statusHero.classList.add("status-hero--ok");
+        views.statusText.textContent = "가능";
+        views.statusChip.textContent = "생산 가능";
+      } else {
+        views.statusHero.classList.add("status-hero--bad");
+        views.statusText.textContent = "불가능";
+        views.statusChip.textContent = `추가 수지 ${needKg.toFixed(1)}kg`;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BoxFlow - 제품 목록</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body>
+  <div class="app app--dark">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h2 class="title">Mvoid</h2>
+      </div>
+      <div class="ghost"></div>
+    </header>
+
+    <!-- ✅ 제품 목록 + 검색창 (위로 올림) -->
+    <section class="card">
+      <div class="card-title">제품 목록</div>
+
+      <!-- 검색창 -->
+      <div class="rowInput">
+        <input id="search" class="input" placeholder="검색" />
+      </div>
+
+      <ul id="list" class="list"></ul>
+      <div id="empty" class="card-sub" style="display:none; margin-top:10px;">
+        아직 제품이 없습니다. 아래에서 추가해줘.
+      </div>
+    </section>
+
+    <!-- ✅ 제품 추가 (아래로 내림) -->
+    <section class="card">
+      <div class="card-title">제품 추가</div>
+      <div class="rowInput">
+        <input id="inputName" class="input" placeholder="제품명 입력 (예: A제품)" />
+        <button id="btnAdd" class="btn btn-success btn-strong">추가</button>
+      </div>
+      <div class="card-sub">* 추가/삭제 내용은 브라우저에 저장됩니다.</div>
+    </section>
+<script>
+    const LOGIN_ID_KEY = "boxflow_login_id";
+    const REGISTERED_IDS_KEY = "boxflow_registered_ids";
+    
+    const savedId = localStorage.getItem(LOGIN_ID_KEY);
+    const registeredIds = JSON.parse(localStorage.getItem(REGISTERED_IDS_KEY)) || ["admin"];
+    if (!savedId || !registeredIds.includes(savedId)) {
+      location.href = "login.html";
+    }
+
+    const PRODUCTS_KEY = "boxflow_products_v1";
+    const productKey = (code) => `boxflow_product_${code}`;
+
+    const $ = (id) => document.getElementById(id);
+    const $list = $("list");
+    const $empty = $("empty");
+    const $inputName = $("inputName");
+    const $search = $("search");
+
+    let products = loadProducts();
+
+    // 초기 샘플 (처음 1회만)
+    if (products.length === 0) {
+      products = [
+        { code: "A", name: "A제품" },
+        { code: "B", name: "B제품" },
+        { code: "C", name: "C제품" },
+      ];
+      saveProducts(products);
+
+      if (!localStorage.getItem(productKey("A"))) {
+        localStorage.setItem(productKey("A"), JSON.stringify({
+          vendorStock: 0, weekShip: 2000, factoryStock: 800,
+          materialKg: 50, weightGPerEa: 35, cycleTime: 24, defectRate: 3,
+          memo: ""
+        }));
+      }
+    }
+
+    render();
+
+    $("btnAdd").addEventListener("click", addProduct);
+    $inputName.addEventListener("keydown", (e) => { if (e.key === "Enter") addProduct(); });
+
+    $search.addEventListener("input", () => render());
+
+    $("btnReset").addEventListener("click", () => {
+      products = [
+        { code: "A", name: "A제품" },
+        { code: "B", name: "B제품" },
+        { code: "C", name: "C제품" },
+      ];
+      saveProducts(products);
+      render();
+    });
+
+    $("btnClearAll").addEventListener("click", () => {
+      products.forEach(p => localStorage.removeItem(productKey(p.code)));
+      products = [];
+      saveProducts(products);
+      render();
+    });
+
+    function addProduct() {
+      const name = $inputName.value.trim();
+      if (!name) return;
+
+      const code = "P" + Date.now();
+      products.push({ code, name });
+      saveProducts(products);
+
+      localStorage.setItem(productKey(code), JSON.stringify({
+        vendorStock: 0, weekShip: 0, factoryStock: 0,
+        materialKg: 0, weightGPerEa: 0, cycleTime: 0, defectRate: 0,
+        memo: ""
+      }));
+
+      $inputName.value = "";
+      $inputName.focus();
+      render();
+    }
+
+    function deleteProduct(code) {
+      localStorage.removeItem(productKey(code));
+      products = products.filter(p => p.code !== code);
+      saveProducts(products);
+      render();
+    }
+
+    function render() {
+      $list.innerHTML = "";
+
+      const q = ($search.value || "").trim().toLowerCase();
+
+      const filtered = products.filter(p => {
+        if (!q) return true;
+        return (p.name || "").toLowerCase().includes(q) || (p.code || "").toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        $empty.style.display = "block";
+        return;
+      }
+      $empty.style.display = "none";
+
+      filtered.forEach(p => {
+        const data = loadProductData(p.code);
+        const weekShip = Number(data?.weekShip ?? 0);
+        const factoryStock = Number(data?.factoryStock ?? 0);
+        const materialKg = Number(data?.materialKg ?? 0);
+        const weightGPerEa = Number(data?.weightGPerEa ?? 0);
+        const cycleTime = Number(data?.cycleTime ?? 0);
+        
+        const needMake = Math.max(0, weekShip - factoryStock);
+        const weightKgPerEa = weightGPerEa / 1000;
+        const uph = cycleTime > 0 ? Math.floor(3600 / cycleTime) : 0;
+        const possibleEa = weightKgPerEa > 0 ? Math.floor(materialKg / weightKgPerEa) : 0;
+        
+        let statusClass = "status-wait";
+        let statusText = "대기";
+        
+        if (weekShip > 0) {
+          if (needMake === 0) {
+            statusClass = "status-ok";
+            statusText = "가능(재고)";
+          } else if (possibleEa >= needMake) {
+            statusClass = "status-ok";
+            statusText = "가능";
+          } else {
+            statusClass = "status-bad";
+            statusText = "불가능";
+          }
+        }
+
+        const li = document.createElement("li");
+        li.className = "list-item";
+        li.innerHTML = `
+          <div class="li-status ${statusClass}">${statusText}</div>
+          <div class="li-left">
+            <div class="li-title">${escapeHtml(p.name)}</div>
+            <div class="li-sub">잔여 필요 생산량: <b>${needMake.toLocaleString("ko-KR")}</b> ea</div>
+          </div>
+          <div class="li-actions">
+            <button class="btn btn-outline-light btn-sm" data-act="open">열기</button>
+            <button class="btn btn-outline-danger btn-sm" data-act="del">삭제</button>
+          </div>
+        `;
+
+        li.querySelector('[data-act="open"]').addEventListener("click", () => {
+          location.href = `product.html?code=${encodeURIComponent(p.code)}`;
+        });
+
+        li.querySelector('[data-act="del"]').addEventListener("click", () => {
+          deleteProduct(p.code);
+        });
+
+        $list.appendChild(li);
+      });
+    }
+
+    function loadProducts() {
+      try {
+        const raw = localStorage.getItem(PRODUCTS_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveProducts(arr) {
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(arr));
+    }
+
+    function loadProductData(code) {
+      try {
+        const raw = localStorage.getItem(productKey(code));
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
