@@ -1,16 +1,16 @@
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-card: #1a1a1a;
-  --bg-hover: #252525;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-  --border-color: #2a2a2a;
-  --accent-color: #00d4ff;
-  --accent-hover: #00a8cc;
-  --danger-color: #ff4757;
-  --success-color: #2ed573;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-hover: #f1f3f5;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #adb5bd;
+  --border-color: #dee2e6;
+  --accent-color: #007bff;
+  --accent-hover: #0056b3;
+  --danger-color: #dc3545;
+  --success-color: #28a745;
 }
 
 /* 로그인 페이지 */
@@ -157,7 +157,7 @@ body {
 
 .input:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
 .btn {
@@ -172,11 +172,11 @@ body {
 
 .btn-success {
   background-color: var(--success-color);
-  color: #000;
+  color: #fff;
 }
 
 .btn-success:hover {
-  background-color: #26af61;
+  background-color: #218838;
 }
 
 .btn-strong {
@@ -201,7 +201,7 @@ body {
 }
 
 .btn-outline-danger:hover {
-  background-color: rgba(255, 71, 87, 0.15);
+  background-color: rgba(220, 53, 69, 0.1);
   border-color: var(--danger-color);
 }
 
@@ -244,18 +244,18 @@ body {
 }
 
 .status-wait {
-  background-color: rgba(255,255,255,0.08);
+  background-color: rgba(0,0,0,0.05);
   color: var(--text-muted);
 }
 
 .status-ok {
-  background-color: rgba(46, 213, 115, 0.15);
-  color: #2ed573;
+  background-color: rgba(40, 167, 69, 0.15);
+  color: var(--success-color);
 }
 
 .status-bad {
-  background-color: rgba(255, 71, 87, 0.15);
-  color: #ff4757;
+  background-color: rgba(220, 53, 69, 0.15);
+  color: var(--danger-color);
 }
 
 .li-left {
@@ -345,18 +345,18 @@ body {
 }
 
 .status-hero--warn {
-  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
-  border: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+  border: 1px solid #ffc107;
 }
 
 .status-hero--ok {
-  background: linear-gradient(135deg, #0d2818 0%, #1a3d2a 100%);
-  border: 1px solid #2ed573;
+  background: linear-gradient(135deg, #e9f7ef 0%, #d4edda 100%);
+  border: 1px solid var(--success-color);
 }
 
 .status-hero--bad {
-  background: linear-gradient(135deg, #2d1419 0%, #3d1a22 100%);
-  border: 1px solid #ff4757;
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border: 1px solid var(--danger-color);
 }
 
 .status-kicker {
@@ -372,17 +372,17 @@ body {
 }
 
 .status-hero--ok .status-text {
-  color: #2ed573;
+  color: var(--success-color);
 }
 
 .status-hero--bad .status-text {
-  color: #ff4757;
+  color: var(--danger-color);
 }
 
 .status-chip {
   font-size: 13px;
   color: var(--text-secondary);
-  background-color: rgba(255,255,255,0.05);
+  background-color: var(--bg-hover);
   padding: 8px 14px;
   border-radius: 20px;
 }
@@ -557,7 +557,7 @@ body {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0,0,0,0.4);
   color: #fff;
   border: none;
   font-size: 16px;
