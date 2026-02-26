@@ -256,7 +256,7 @@
     }
 
     function recalcPreview(){
-      const v = Object.fromEntries(inputs.map(id=>{
+      const v = Object.fromEntries(inputs.filter(id => id !== 'image').map(id=>{
         const el = $(id);
         return [id, (el.type === "number") ? (Number(el.value)||0) : (el.value||"")];
       }));
